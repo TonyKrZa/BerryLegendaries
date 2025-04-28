@@ -1,0 +1,37 @@
+[manifest]
+version = "0.0.~1"
+dump_lua = true
+priority = 0
+
+# Replace draw hand
+
+[[patches]]
+[patches.pattern]
+target = "cardarea.lua"
+pattern = '''
+if (self == G.hand) and G.GAME.modifiers.flipped_cards then
+	if pseudorandom(pseudoseed('flipped_card')) < 1/G.GAME.modifiers.flipped_cards then
+		stay_flipped = true
+	end
+end
+'''
+position = 'after'
+match_indent = true
+payload = '''
+if area == G.deck and self == G.hand and card and G.jokers and G.jokers.cards then
+	for _,v in ipairs(G.jokers.cards) do
+		-- Bread card check
+		if v.ability.name == 'j_blurb_bread' and (pseudorandom(pseudoseed('bread')) < (G.GAME.probabilities.normal / v.ability.extra.odds)) then
+			-- Bread's oubler
+			card.ability.perma_bonus = card.ability.perma_bonus + card:get_chip_bonus()
+			v.ability.extra.has_doubled = true
+		end
+		
+		-- Qui card check
+		if v.ability.name == 'j_blurb_qui' and card.base.suit == 'Diamonds' then
+			v.ability.extra.diamond_count = v.ability.extra.diamond_count or 0
+			v.ability.extra.diamond_count = v.ability.extra.diamond_count + 1
+		end
+	end
+end
+'''

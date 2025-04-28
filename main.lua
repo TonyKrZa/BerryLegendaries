@@ -2,19 +2,9 @@
 ------------MOD CODE -------------------------
 
 -- I am so sorry for anyone who has to look through this. Especially me in the future! 
-
-function addEventForAll(cards,dely,func)
-	for i,v in ipairs(cards) do
-		G.E_MANAGER:add_event(Event({trigger = 'after',delay = dely,func = func(i,v)}))
-	end
-end
-
-SMODS.Atlas{
-    key = 'Jokers',
-    path = 'jokers.png',
-    px = 71,
-    py = 95
-}
+assert(SMODS.load_file("atlases.lua", 'berry_leg'))()
+assert(SMODS.load_file("sounds.lua", 'berry_leg'))()
+assert(SMODS.load_file("fumi_helper.lua", 'berry_leg'))()
 
 SMODS.Joker{
     key = 'tony',
@@ -63,7 +53,7 @@ SMODS.Joker{
         }
     end
 }
--- TODO: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
 SMODS.Joker{
     key = 'stick',
     loc_txt = {
@@ -97,7 +87,7 @@ SMODS.Joker{
         if context.before and next(context.poker_hands['Straight']) and not context.blueprint then
 			card.ability.extra.x_mult = card.ability.extra.x_mult + card.ability.extra.x_mult_gain
 			-- First flip
-			addEventForAll(context.scoring_hand,0.15,function (i,v)
+			BerryLegendaries.addEventForAll(context.scoring_hand,0.15,function (i,v)
 				local percent = 1.15 - (i-0.999)/(#G.hand.highlighted-0.998)*0.3
 				return function()
 					v:flip()
@@ -106,7 +96,7 @@ SMODS.Joker{
 				end
 			end)
 			-- Set Enchantment
-			addEventForAll(context.scoring_hand,0.3,function (i,v)
+			BerryLegendaries.addEventForAll(context.scoring_hand,0.3,function (i,v)
 				return function()
 					v:juice_up()
 					return true
@@ -116,7 +106,7 @@ SMODS.Joker{
                 v:set_ability(G.P_CENTERS[SMODS.poll_enhancement({guaranteed = true})], true, true)
             end
 			-- Second flip / Unflip
-			addEventForAll(context.scoring_hand,0.15,function (i,v)
+			BerryLegendaries.addEventForAll(context.scoring_hand,0.15,function (i,v)
 				local percent = 1.15 - (i-0.999)/(#G.hand.highlighted-0.998)*0.3
 				return function()
 					v:flip()
@@ -176,7 +166,7 @@ SMODS.Joker{
     },
     atlas = 'Jokers',
     rarity = 4,
-    config = { extra = { odds = 2} },
+    config = { extra = { odds = 2, has_doubled = false } },
     pos = { x = 3, y = 0 },
     soul_pos = { x = 3, y = 1},
     cost = 20,
@@ -185,20 +175,13 @@ SMODS.Joker{
         return  { vars = { (G.GAME.probabilities.normal or 1), card.ability.extra.odds } }
     end,
     calculate = function(self, card, context)
-        if context.hand_drawn then
-            sendDebugMessage(inspectDepth(context.hand_drawn), "Bread")
-        end
-        if pseudorandom('bread') < G.GAME.probabilities.normal / card.ability.extra.odds then
-            if context.individual and context.cardarea == G.play then
-        -- other_card = card
-        -- Bread's oubler
-        context.other_card.ability.perma_bonus = context.other_card:get_chip_bonus() + context.other_card.ability.perma_bonus
-        return  {   
-                 message = 'awa',
-                 colour = G.C.CHIPS,
-                 card = card
-                }
-            end
+        if context.hand_drawn and card.ability.extra.has_doubled then
+			card.ability.extra.has_doubled = false
+			return  {   
+					 message = 'awa',
+					 colour = G.C.CHIPS,
+					 card = card
+					}
         end
     end
 }
@@ -215,21 +198,112 @@ SMODS.Joker{
     },
     atlas = 'Jokers',
     rarity = 4,
-    config = { extra = { dollars = 3 } },
+    config = { extra = { dollars = 3, diamond_count = 0, saw_seal = false } },
     pos = { x = 4, y = 0 },
+    soul_pos = { x = 4, y = 1},
+    cost = 20,
+    blueprint_compat = true,
+    loc_vars = function(self, info_queue, card)
+        return  { vars = {card.ability.extra.dollars, card.ability.extra.diamond_count, card.ability.extra.saw_seal }}
+    end,
+    calculate = function(self, card, context)
+		if context.hand_drawn and card.ability.extra.diamond_count > 0 then
+			ease_dollars(card.ability.extra.dollars * card.ability.extra.diamond_count)
+			card.ability.extra.diamond_count = 0
+			return  {   
+					 message = 'nyeom',
+					 colour = G.C.DIAMONDS,
+					 card = card
+					}
+		end
+		if context.before then
+			for _,v in ipairs(context.scoring_hand) do
+				if v.seal then
+					local target_card = (pseudorandom(pseudoseed('stdset'..G.GAME.round_resets.ante)) > 0.6) and "Enhanced" or "Base"
+					local target_seal = pseudorandom_element(G.P_CENTER_POOLS['Seal'], pseudorandom('seals'))['key']
+					local _card = SMODS.add_card({set = target_card, seal = target_seal, area = G.hand, skip_materialize = true})
+					_card.states.visible = nil
+
+					G.E_MANAGER:add_event(Event({
+						func = function()
+							_card:start_materialize()
+							return true
+						end
+					})) 
+					saw_seal = true
+				end
+			end
+			if saw_seal then
+				return{
+						message = 'Copied!',
+						colour = G.C.CHIPS,
+						card = card
+					}
+			end
+		end
+	end
+}
+
+SMODS.Joker{
+    key = 'fumi',
+    loc_txt = {
+        name = 'Fumi',
+        text = {
+            'This joker will always be {C:dark_edition}Negative{}',
+			'Gives a {C:dark_edition}Negative{} Tarot',
+			'corresponding to the sum of ranks scored'
+        }
+    },
+    atlas = 'Jokers',
+    rarity = 4,
+    config = { extra = { applied_bonus = false, dropdown_values = {} } },
+    pos = { x = 6, y = 0 },
     soul_pos = { x = 6, y = 1},
     cost = 20,
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
-        return  { vars = {card.ability.extra.dollars }}
-    end
+        return  { vars = {card.ability.extra.applied_bonus, card.ability.extra.dropdown_values }}
+    end,
+    calculate = function(self, card, context)
+		if (not card:get_edition() or not card:get_edition().card.edition.type == 'negative') and not context.blueprint then
+			card:set_edition('e_negative')
+			return {
+				message = "Hell yeah!",
+				colour = G.C.PURPLE,
+				card = card,
+				sound = 'blurb_fumi'
+			}
+		end
+		
+		if context.joker_main then
+			local tarot_list = {'c_fool','c_magician','c_high_priestess','c_empress','c_emperor','c_heirophant','c_lovers','c_chariot','c_justice','c_hermit','c_wheel_of_fortune','c_strength','c_hanged_man','c_death','c_temperance','c_devil','c_tower','c_star','c_moon','c_sun','c_judgement','c_world'}
+			local total = 0
+			local rank = 0
+			for k, v in ipairs(context.scoring_hand) do
+				rank = math.max(v:get_id(), 0)
+				if v:get_id() == 14 then
+					rank = (total + 11 > 21) and 1 or 11
+				end
+				sendDebugMessage(rank, 'FumiLogger')
+				total = total + rank
+			end
+			sendDebugMessage(total, 'FumiLogger')
+			
+			if total >= 0 and total <= 21 then
+				local target_card = tarot_list[total+1]
+				local _card = SMODS.add_card({set = 'Tarot', edition = 'e_negative', key = target_card, skip_materialize = true})
+				_card.states.visible = nil
+
+				G.E_MANAGER:add_event(Event({
+					func = function()
+						_card:start_materialize()
+						return true
+					end
+				}))
+			end
+		end
+	end
 }
-
--- Hook for Bread / Qui
-
-
-
-
 
 
 ----------------------------------------------

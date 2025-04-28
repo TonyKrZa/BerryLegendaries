@@ -2,7 +2,7 @@
 	"id": "berry_leg",
 	"name": "Berry's Legendaries",
 	"display_name": "Berry's Legendaries",
-	"author": ["TonyKrZa, Axyraandas, fumiko_239"],
+	"author": ["TonyKrZa"],
 	"description": "Adds a few Legendaries based on my friends!",
 	"prefix": "blurb",
 	"main_file": "main.lua",
