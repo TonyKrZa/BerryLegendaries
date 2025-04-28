@@ -4,7 +4,7 @@
 -- I am so sorry for anyone who has to look through this. Especially me in the future! 
 assert(SMODS.load_file("atlases.lua", 'berry_leg'))()
 assert(SMODS.load_file("sounds.lua", 'berry_leg'))()
-assert(SMODS.load_file("fumi_helper.lua", 'berry_leg'))()
+assert(SMODS.load_file("helper_funcs.lua", 'berry_leg'))()
 
 SMODS.Joker{
     key = 'tony',
@@ -284,10 +284,8 @@ SMODS.Joker{
 				if v:get_id() == 14 then
 					rank = (total + 11 > 21) and 1 or 11
 				end
-				sendDebugMessage(rank, 'FumiLogger')
 				total = total + rank
 			end
-			sendDebugMessage(total, 'FumiLogger')
 			
 			if total >= 0 and total <= 21 then
 				local target_card = tarot_list[total+1]
