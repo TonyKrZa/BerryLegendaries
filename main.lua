@@ -256,13 +256,13 @@ SMODS.Joker{
     },
     atlas = 'Jokers',
     rarity = 4,
-    config = { extra = { applied_bonus = false, dropdown_values = {} } },
+    config = { extra = {} },
     pos = { x = 6, y = 0 },
     soul_pos = { x = 6, y = 1},
     cost = 20,
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
-        return  { vars = {card.ability.extra.applied_bonus, card.ability.extra.dropdown_values }}
+        return  { vars = {}}
     end,
     calculate = function(self, card, context)
 		if (not card:get_edition() or not card:get_edition().card.edition.type == 'negative') and not context.blueprint then
@@ -279,12 +279,19 @@ SMODS.Joker{
 			local tarot_list = {'c_fool','c_magician','c_high_priestess','c_empress','c_emperor','c_heirophant','c_lovers','c_chariot','c_justice','c_hermit','c_wheel_of_fortune','c_strength','c_hanged_man','c_death','c_temperance','c_devil','c_tower','c_star','c_moon','c_sun','c_judgement','c_world'}
 			local total = 0
 			local rank = 0
+			local ace_count = 0
 			for k, v in ipairs(context.scoring_hand) do
 				rank = math.max(v:get_id(), 0)
 				if v:get_id() == 14 then
-					rank = (total + 11 > 21) and 1 or 11
+					ace_count = ace_count + 1
+					rank = 11
 				end
 				total = total + rank
+			end
+			
+			while ace_count > 0 and total > 21 do
+				ace_count = ace_count - 1
+				total = total - 10
 			end
 			
 			if total >= 0 and total <= 21 then

@@ -28,7 +28,7 @@ if area == G.deck and self == G.hand and card and G.jokers and G.jokers.cards th
 		end
 		
 		-- Qui card check
-		if v.ability.name == 'j_blurb_qui' and card.base.suit == 'Diamonds' then
+		if v.ability.name == 'j_blurb_qui' and card.base.suit == 'Diamonds' and not card.debuff then
 			v.ability.extra.diamond_count = v.ability.extra.diamond_count or 0
 			v.ability.extra.diamond_count = v.ability.extra.diamond_count + 1
 		end
