@@ -1,7 +1,7 @@
 ----------------------------------------------
 ------------MOD CODE -------------------------
 
--- I am so sorry for anyone who has to look through this. Especially me in the future! 
+-- I am so sorry for anyoone who has to look through this. Especially me in the future! 
 
 function addEventForAll(cards,dely,func)
 	for i,v in ipairs(cards) do
@@ -63,14 +63,14 @@ SMODS.Joker{
         }
     end
 }
--- TODO: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
 SMODS.Joker{
     key = 'stick',
     loc_txt = {
         name = 'Stick',
         text = {
             'If played hand contains a {C:attention}Straight{},',
-            'scored cards gain a random {C:attention}enhancement{}',
+            'scored cards gain a random {C:attention}enchantment{}',
             'and this joker gains {X:mult,C:white}X#2#{} Mult{}',
             '{C:inactive}(Currently {X:mult,C:white}X#1#{C:inactive} Mult)'
         }
@@ -86,7 +86,6 @@ SMODS.Joker{
         return { vars = {card.ability.extra.x_mult, card.ability.extra.x_mult_gain}}
     end,
     calculate = function(self, card, context)
-
         if context.joker_main then
 			return {
 				xmult = card.ability.extra.x_mult
@@ -94,36 +93,50 @@ SMODS.Joker{
 		end
         if context.cardarea ~= G.jokers or not context.before then return end
 
-        if context.before and next(context.poker_hands['Straight']) and not context.blueprint then
+        if next(context.poker_hands['Straight']) and not context.blueprint then
 			card.ability.extra.x_mult = card.ability.extra.x_mult + card.ability.extra.x_mult_gain
-			-- First flip
-			addEventForAll(context.scoring_hand,0.15,function (i,v)
-				local percent = 1.15 - (i-0.999)/(#G.hand.highlighted-0.998)*0.3
-				return function()
-					v:flip()
-					play_sound('card1', percent);
-					return true
-				end
-			end)
-			-- Set Enchantment
-			addEventForAll(context.scoring_hand,0.3,function (i,v)
-				return function()
-					v:juice_up()
-					return true
-				end
-			end)
-            for i, v in ipairs(context.scoring_hand) do
-                v:set_ability(G.P_CENTERS[SMODS.poll_enhancement({guaranteed = true})], true, true)
-            end
-			-- Second flip / Unflip
-			addEventForAll(context.scoring_hand,0.15,function (i,v)
-				local percent = 1.15 - (i-0.999)/(#G.hand.highlighted-0.998)*0.3
-				return function()
-					v:flip()
-					play_sound('card1', percent);
-					return true
-				end
-			end)
+
+			-- -- First flip
+			-- addEventForAll(context.scoring_hand,0.15,function (i,v)
+				-- local percent = 1.15 - (i-0.999)/(#G.hand.highlighted-0.998)*0.3
+				-- return function()
+					-- v:flip()
+					-- play_sound('card1', percent);
+					-- return true
+				-- end
+			-- end)
+			-- -- Set Enchantment
+			-- addEventForAll(context.scoring_hand,0.3,function (i,v)
+				-- return function()
+					-- v:set_ability(G.P_CENTERS[SMODS.poll_enhancement({guaranteed = true})],true)
+					-- v:juice_up()
+					-- return true
+				-- end
+			-- end)
+			-- -- Second flip
+			-- addEventForAll(context.scoring_hand,0.15,function (i,v)
+				-- local percent = 1.15 - (i-0.999)/(#G.hand.highlighted-0.998)*0.3
+				-- return function()
+					-- v:flip()
+					-- play_sound('card1', percent);
+					-- return true
+				-- end
+			-- end)
+			for k,v in ipairs(context.scoring_hand) do
+				local percent = 1.15 - (k-0.999)/(#G.hand.highlighted-0.998)*0.3
+				v:flip()
+				play_sound('card1',percent)
+			end
+			for k,v in ipairs(context.scoring_hand) do
+				v:set_ability(G.P_CENTERS[SMODS.poll_enhancement({guaranteed = true})],true)
+				v:juice_up()
+			end
+			for k,v in ipairs(context.scoring_hand) do
+				local percent = 1.15 - (k-0.999)/(#G.hand.highlighted-0.998)*0.3
+				v:flip()
+				play_sound('card1',percent)
+			end
+
 			return{
 				message = 'Spin!',
 				colour = G.C.MULT,
@@ -176,30 +189,13 @@ SMODS.Joker{
     },
     atlas = 'Jokers',
     rarity = 4,
-    config = { extra = { odds = 2} },
+    config = { extra = { odds = 4 } },
     pos = { x = 3, y = 0 },
     soul_pos = { x = 0, y = 1},
     cost = 20,
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
         return  { vars = { (G.GAME.probabilities.normal or 1), card.ability.extra.odds } }
-    end,
-    calculate = function(self, card, context)
-        if context.hand_drawn then
-            sendDebugMessage(inspectDepth(context.hand_drawn), "Bread")
-        end
-        if pseudorandom('bread') < G.GAME.probabilities.normal / card.ability.extra.odds then
-            if context.individual and context.cardarea == G.play then
-        -- other_card = card
-        -- Bread's oubler
-        context.other_card.ability.perma_bonus = context.other_card:get_chip_bonus() + context.other_card.ability.perma_bonus
-        return  {   
-                 message = 'awa',
-                 colour = G.C.CHIPS,
-                 card = card
-                }
-            end
-        end
     end
 }
 
@@ -208,26 +204,47 @@ SMODS.Joker{
     loc_txt = {
         name = 'Qui',
         text = {
-            'Each {C:attention}scoring seal card{} creates',
-            'a random {C:attention}seal{} card, get {C:money}#1#${}',
-            'for every {C:diamonds}Diamond{} drawn'
+            'Each {C:attention}scoring seal card{} creates a',
+            '{C:green}#1# in #2#{} chance to permanently',
+            '{C:attention}double{} its chip value'
         }
     },
     atlas = 'Jokers',
     rarity = 4,
-    config = { extra = { dollars = 3 } },
+    config = { extra = { odds = 4 } },
     pos = { x = 4, y = 0 },
     soul_pos = { x = 0, y = 1},
     cost = 20,
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
-        return  { vars = {card.ability.extra.dollars }}
+        return  { vars = { (G.GAME.probabilities.normal or 1), card.ability.extra.odds } }
     end
 }
 
--- Hook for Bread / Qui
+-- Note to Axy: please make this readable for me. You may know the magics beyond but I am but a mere squire. Do not inscibe the runes of madness unto my poor lua file.
 
-
+SMODS.Joker{
+    key = 'axy',
+    loc_txt = {
+        name = 'Axy',
+        text = {
+            '{C:inactive}This joker is under construction.',
+            '{C:inactive}I have no idea what to say here',
+            '{C:inactive}because this scares me.'
+        }
+    },
+    atlas = 'Jokers',
+    rarity = 4,
+    config = { extra = { odds = 4 } },
+    pos = { x = 5, y = 0 },
+    soul_pos = { x = 5, y = 1},
+    cost = 20,
+    blueprint_compat = true,
+    loc_vars = function(self, info_queue, card)
+        return  { vars = { (G.GAME.probabilities.normal or 1), card.ability.extra.odds } }
+    end
+}
+            
 
 
 
