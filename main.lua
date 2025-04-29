@@ -198,7 +198,7 @@ SMODS.Joker{
     },
     atlas = 'Jokers',
     rarity = 4,
-    config = { extra = { dollars = 3, diamond_count = 0, saw_seal = false  } },
+    config = { extra = { dollars = 3, diamond_count = 0, saw_seal = false } },
     pos = { x = 4, y = 0 },
     soul_pos = { x = 4, y = 1},
     cost = 20,
@@ -211,8 +211,8 @@ SMODS.Joker{
 			ease_dollars(card.ability.extra.dollars * card.ability.extra.diamond_count)
 			card.ability.extra.diamond_count = 0
 			return  {   
-					 message = 'Nyeom!',
-					 colour = HEX("FF85FF"),
+					 message = 'nyeom',
+					 colour = HEX('ff85ff'),
 					 card = card
 					}
 		end
@@ -235,8 +235,8 @@ SMODS.Joker{
 			end
 			if saw_seal then
 				return{
-						message = 'Sealed!',
-                        colour = HEX("FF85FF"),
+						message = 'Copied!',
+						colour = HEX('ff85ff'),
 						card = card
 					}
 			end
@@ -285,27 +285,32 @@ SMODS.Joker{
 				rank = math.max(v:get_id(), 0)
 				if v:get_id() == 14 then
 					ace_count = ace_count + 1
-					rank = 11
+					rank = 1
 				end
 				total = total + rank
 			end
 			
-			while ace_count > 0 and total > 21 do
+			local tarot_array = {total}
+			while ace_count > 0 do
 				ace_count = ace_count - 1
-				total = total - 10
+				total = total + 10
+				table.insert(tarot_array, total)
 			end
 			
-			if total >= 0 and total <= 21 then
-				local target_card = tarot_list[total+1]
-				local _card = SMODS.add_card({set = 'Tarot', edition = 'e_negative', key = target_card, skip_materialize = true})
-				_card.states.visible = nil
+			for _,v in ipairs(tarot_array) do
+				if v >= 0 and v <= 21 then
+					local target_card = tarot_list[v+1]
+					local _card = SMODS.add_card({set = 'Tarot', edition = 'e_negative', key = target_card, skip_materialize = true})
+					_card.states.visible = nil
 
-				G.E_MANAGER:add_event(Event({
-					func = function()
-						_card:start_materialize()
-						return true
-					end
-				}))
+					G.E_MANAGER:add_event(Event({
+						trigger = 'after',
+						func = function()
+							_card:start_materialize()
+							return true
+						end
+					}))
+				end
 			end
 		end
 	end
