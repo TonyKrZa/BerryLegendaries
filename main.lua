@@ -166,7 +166,7 @@ SMODS.Joker{
     },
     atlas = 'Jokers',
     rarity = 4,
-    config = { extra = { odds = 2, has_doubled = false } },
+    config = { extra = { odds = 3, has_doubled = false } },
     pos = { x = 3, y = 0 },
     soul_pos = { x = 3, y = 1},
     cost = 20,
@@ -198,7 +198,7 @@ SMODS.Joker{
     },
     atlas = 'Jokers',
     rarity = 4,
-    config = { extra = { dollars = 3, diamond_count = 0, saw_seal = false } },
+    config = { extra = { dollars = 3, diamond_count = 0, saw_seal = false  } },
     pos = { x = 4, y = 0 },
     soul_pos = { x = 4, y = 1},
     cost = 20,
@@ -211,8 +211,8 @@ SMODS.Joker{
 			ease_dollars(card.ability.extra.dollars * card.ability.extra.diamond_count)
 			card.ability.extra.diamond_count = 0
 			return  {   
-					 message = 'nyeom',
-					 colour = G.C.DIAMONDS,
+					 message = 'Nyeom!',
+					 colour = HEX("FF85FF"),
 					 card = card
 					}
 		end
@@ -235,8 +235,8 @@ SMODS.Joker{
 			end
 			if saw_seal then
 				return{
-						message = 'Copied!',
-						colour = G.C.CHIPS,
+						message = 'Sealed!',
+                        colour = HEX("FF85FF"),
 						card = card
 					}
 			end
@@ -249,9 +249,10 @@ SMODS.Joker{
     loc_txt = {
         name = 'Fumi',
         text = {
-            'This joker will always be {C:dark_edition}Negative{}',
-			'Gives a {C:dark_edition}Negative{} Tarot',
-			'corresponding to the sum of ranks scored'
+            'This joker will {C:attention}always{} be {C:dark_edition}Negative{}',
+			'Gives a {C:dark_edition}Negative{} {C:tarot}Tarot{}',
+			'corresponding to the {C:attention}sum of ranks{} scored',
+            '{C:inactive}(Aces count as 1 or 11, no-rank cards count as 0){}'
         }
     },
     atlas = 'Jokers',
