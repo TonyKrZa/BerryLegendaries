@@ -203,7 +203,7 @@ SMODS.Joker{
 									G.consumeables:remove_card(v)
 									v:remove()
 									v = nil
-									SMODS.calculate_effect({message = 'Nom',colour = HEX('AD7B5C')}, card)
+									
 									return true;
 								end}))
 							return true;
@@ -220,6 +220,7 @@ SMODS.Joker{
 					}))
 			end
 			
+			if count > self.config.extra.ate_card then SMODS.calculate_effect({message = 'Nom',colour = HEX('AD7B5C')}, card) end
 			if self.config.extra.ate_card == 0 then self.config.extra.ate_card = count end
 			
 			return {
