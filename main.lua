@@ -2,6 +2,7 @@
 ------------MOD CODE -------------------------
 
 -- I am so sorry for anyone who has to look through this. Especially me in the future! 
+BerryLegendaries = {}
 assert(SMODS.load_file("atlases.lua", 'berry_leg'))()
 assert(SMODS.load_file("sounds.lua", 'berry_leg'))()
 assert(SMODS.load_file("helper_funcs.lua", 'berry_leg'))()
@@ -137,21 +138,104 @@ SMODS.Joker{
         name = 'Nyala',
         text = {
             'Played hands turn their respective',
-            ' {C:planet}Planets{} into {C:enhanced}Black Holes{}',
+            'held {C:planet}Planets{} into {C:enhanced}Black Holes{}',
             '{X:mult,C:white}X#2#{} Mult for every {C:enhanced}Black Hole{} used',
             '{C:inactive}(Currently {X:mult,C:white}X#1#{C:inactive} Mult)'
         }
     },
     atlas = 'Jokers',
     rarity = 4,
-    config = { extra = { x_mult = 1, x_mult_gain = 0.5 } },
+    config = { extra = {
+		x_mult = 1,
+		x_mult_gain = 0.5,
+		ate_card = 0,
+		mapping = {
+			-- Vanilla
+			["Pluto"] = 'High Card',
+			["Mercury"] = 'Pair',
+			["Uranus"] = 'Two Pair',
+			["Venus"] = 'Three of a Kind',
+			["Saturn"] = 'Straight',
+			["Jupiter"] = 'Flush',
+			["Earth"] = 'Full House',
+			["Mars"] = 'Four Of A Kind',
+			["Neptune"] = 'Straight Flush',
+			["Planet X"] = 'Five Of A Kind',
+			["Ceres"] = 'Flush House',
+			["Eris"] = 'Flush Five',
+			-- Cryptid
+			["c_cry_asteroidbelt"] = "Bulwark", -- Asteroid Belt
+			["c_cry_void"] = "Clusterfuck", -- Void
+			["c_cry_marsmoons"] = "Ultimate Pair", -- Phobos and Deimos
+			["c_cry_universe"] = "The Entire Fucking Deck", -- The Universe In Its Fucking Entirety
+			["cry-Timantti"] = {"High Card", "Pair", "Two Pair"}, -- Ruutu
+			["cry-Klubi"] = {"Three of a Kind", "Straight", "Flush"}, -- Risti
+			["cry-Sydan"] = {"Full House", "Four of a Kind", "Straight Flush"}, -- Hertta
+			["cry-Lapio"] = {"Five of a Kind", "Flush House", "Flush Five"}, -- Pata
+			["cry-Kaikki"] = {"Bulwark", "Clusterfuck", "Ultimate Pair"}, -- Kaikki
+			["cry-sunplanet"] = {}, -- ignore Ascended cards for simplicity
+		}
+		} },
     pos = { x = 2, y = 0 },
     soul_pos = { x = 2, y = 1},
     cost = 20,
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
-        return { vars = {card.ability.extra.x_mult, card.ability.extra.x_mult_gain}}
-    end
+        return { vars = {
+			card.ability.extra.x_mult,
+			card.ability.extra.x_mult_gain
+			}}
+    end,
+	calculate = function(self, card, context)
+		if context.joker_main then
+			local count = 0
+			for _,v in ipairs(G.consumeables.cards) do
+				if self.config.extra.ate_card == 0 and v.ability.set == 'Planet' and BerryLegendaries.isMember(v.ability.name, context.scoring_name, self.config.extra.mapping) then 
+					G.E_MANAGER:add_event(Event({
+						func = function()
+							play_sound('tarot1')
+							v.T.r = -0.2
+							v:juice_up(0.3, 0.4)
+							v.states.drag.is = true
+							v.children.center.pinch.x = true
+							G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.3, blockable = false,
+								func = function()
+									G.consumeables:remove_card(v)
+									v:remove()
+									v = nil
+									SMODS.calculate_effect({message = 'Nom',colour = HEX('AD7B5C')}, card)
+									return true;
+								end}))
+							return true;
+						end}))
+					count = count + 1
+				end
+			end
+
+			for _=self.config.extra.ate_card+1, count do
+				G.E_MANAGER:add_event(Event({
+						func = function()
+						SMODS.add_card({set = 'Spectral', key = 'c_black_hole'})
+						return true; end
+					}))
+			end
+			
+			if self.config.extra.ate_card == 0 then self.config.extra.ate_card = count end
+			
+			return {
+				xmult = card.ability.extra.x_mult
+			}
+		end
+		
+		if context.using_consumeable and context.consumeable.label == 'Black Hole' then
+			card.ability.extra.x_mult = card.ability.extra.x_mult + card.ability.extra.x_mult_gain
+			SMODS.calculate_effect({message = "Upgraded!", colour = G.C.MULT}, card)
+		end
+		
+		if context.after and self.config.extra.ate_card ~= 0 then
+			self.config.extra.ate_card = 0
+		end
+	end
 }
 
 SMODS.Joker{
@@ -234,6 +318,7 @@ SMODS.Joker{
 				end
 			end
 			if saw_seal then
+				saw_seal = false
 				return{
 						message = 'Copied!',
 						colour = HEX('ff85ff'),
@@ -257,7 +342,9 @@ SMODS.Joker{
     },
     atlas = 'Jokers',
     rarity = 4,
-    config = { extra = {} },
+    config = { extra = {
+		tarot_list = {'c_fool','c_magician','c_high_priestess','c_empress','c_emperor','c_heirophant','c_lovers','c_chariot','c_justice','c_hermit','c_wheel_of_fortune','c_strength','c_hanged_man','c_death','c_temperance','c_devil','c_tower','c_star','c_moon','c_sun','c_judgement','c_world'}
+	} },
     pos = { x = 6, y = 0 },
     soul_pos = { x = 6, y = 1},
     cost = 20,
@@ -266,7 +353,7 @@ SMODS.Joker{
         return  { vars = {}}
     end,
     calculate = function(self, card, context)
-		if (not card:get_edition() or not card:get_edition().card.edition.type == 'negative') and not context.blueprint then
+		if (not card:get_edition() or card:get_edition().card.edition.type ~= 'negative') and not context.blueprint then
 			card:set_edition('e_negative')
 			return {
 				message = "Hell yeah!",
@@ -277,12 +364,11 @@ SMODS.Joker{
 		end
 		
 		if context.joker_main then
-			local tarot_list = {'c_fool','c_magician','c_high_priestess','c_empress','c_emperor','c_heirophant','c_lovers','c_chariot','c_justice','c_hermit','c_wheel_of_fortune','c_strength','c_hanged_man','c_death','c_temperance','c_devil','c_tower','c_star','c_moon','c_sun','c_judgement','c_world'}
 			local total = 0
 			local rank = 0
 			local ace_count = 0
 			for k, v in ipairs(context.scoring_hand) do
-				rank = math.max(v:get_id(), 0)
+				rank = SMODS.has_no_rank(v) and 0 or math.max(v:get_id(), 0)
 				if v:get_id() == 14 then
 					ace_count = ace_count + 1
 					rank = 1
@@ -299,13 +385,13 @@ SMODS.Joker{
 			
 			for _,v in ipairs(tarot_array) do
 				if v >= 0 and v <= 21 then
-					local target_card = tarot_list[v+1]
-					local _card = SMODS.add_card({set = 'Tarot', edition = 'e_negative', key = target_card, skip_materialize = true})
-					_card.states.visible = nil
+					local target_card = self.config.extra.tarot_list[v+1]
 
 					G.E_MANAGER:add_event(Event({
 						trigger = 'after',
 						func = function()
+							local _card = SMODS.add_card({set = 'Tarot', edition = 'e_negative', key = target_card, skip_materialize = true})
+							_card.states.visible = nil
 							_card:start_materialize()
 							return true
 						end
