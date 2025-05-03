@@ -227,7 +227,7 @@ SMODS.Joker{
 			}
 		end
 		
-		if context.using_consumeable and context.consumeable.label == 'Black Hole' then
+		if context.using_consumeable and context.consumeable.label == 'Black Hole' and not context.blueprint then
 			card.ability.extra.x_mult = card.ability.extra.x_mult + card.ability.extra.x_mult_gain
 			SMODS.calculate_effect({message = "Upgraded!", colour = G.C.MULT}, card)
 		end
