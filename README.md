@@ -3,7 +3,7 @@
  <img width=688px src="extra/title.png?raw=true" alt="Welcome."></a>
 </p>
 
-I added my friends to Balatro. Or well, at least some of them!
+<p align="center"> I added my friends to Balatro. Or well, at least some of them! </p>
 
 ## About:
 Berry's Legendaries is a mod that adds (at the time of writing) 5 new **Legendaries** to spice up your game whenever you get **Soul**! They range from mildly interesting to potentially game breaking, and they're all mostly based on my friends and potential inside joke(r)s based on them.
