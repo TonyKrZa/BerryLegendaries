@@ -403,6 +403,41 @@ SMODS.Joker{
 	end
 }
 
+SMODS.Joker{
+    key = 'zohn',
+    loc_txt = {
+        name = 'Zohnathan',
+        text = {
+			'{C:chips}+#12#{} Chips, {X:mult,C:white}X#13#{} Mult{}',
+            'Retrigger every {C:attention}Ace{} or {C:attention}2{}',
+            'For every {C:attention}retrigger{}, go down the following list:',
+            '{C:green}#1# in #2#{} chance to {X:mult,C:white}X#14#{} Mult{} or {X:chips,C:white}X#14#{} Chips{} or {X:mult,C:white}X#15#{} Mult{} or {X:chips,C:white}X#15#{} Chips{}',
+			'{C:green}#1# in #3#{} chance to turn to {C:attention}Polychrome{}/{C:attention}Holographic{}/{C:attention}Foil{} or {C:dark_edition}Negative{}/{C:tarot}Eternal{} sticker',
+			'{C:green}#1# in #4#{} chance to turn {C:attention}all cards in hand{} to {C:attention}Steel{} or {C:attention}Gold{}',
+			'{C:green}#1# in #5#{} chance to turn {C:attention}all cards{} to {C:attention}Aces{} or {C:attention}2s{}',
+			'{C:green}#1# in #6#{} chance to {C:attention}duplicate{} all {C:dark_edition}Negative{} Jokers or Non-{C:dark_edition}Negative{} Edition Jokers',
+			'{C:green}#1# in #7#{} chance to turn {C:attention}all cards in shop{} to {C:dark_edition}Negative{} Edition Jokers or {C:attention}Polychrome 2s{}',
+			'{C:green}#1# in #8#{} chance to {C:attention}set Ante{} to {C:attention}1{} or turn the next {C:attention}Boss Blind{} into {C:attention}The Wall{}',
+			'{C:green}#1# in #9#{} chance to {C:red,E:2}immediately lose the game{} or play {C:attention}Never Gonna Give You Up{}',
+			'{C:green}#1# in #10#{} chance to replace all sound effects to {C:attention}Travis Scott falling off stage in London{} or {X:dark_edition,C:white}^#16#{} Mult{}',
+			'{C:green}#1# in #11#{} chance to turn {C:attention}all Jokers in hand{} to this Joker, or permanently add {C:chips}+#17#{} Chips to all cards {C:attention}in hand{}',
+			'Add {C:attention}trigger count{} to {X:mult,C:white}XMult{}{}, after this, {C:attention}loop back{} to the {C:attention}first trigger{}',
+			'{C:inactive}(Currently {X:mult,C:white}X#13#{C:inactive} Mult)'
+
+        }
+    },
+    atlas = 'Jokers',
+    rarity = 4,
+	config = { extra = { odds_1 = 2, odds_2 = 2, odds_3 = 2, odds_4 = 2, odds_5 = 2, odds_6 = 2, odds_7 = 2, odds_8 = 2, odds_9 = 2, odds_10 = 2, chips = 50, x_mult = 3, x_mult_1_1 = 3, x_mult_1_2 = 0.5, power_mult = 2, final_chip = 69420} },
+    pos = { x = 0, y = 2 },
+    soul_pos = { x = 0, y = 3},
+    cost = 20,
+    blueprint_compat = false,
+    loc_vars = function(self, info_queue, card)
+        return  { vars = { (G.GAME.probabilities.normal or 1), card.ability.extra.odds_1, card.ability.extra.odds_2, card.ability.extra.odds_3, card.ability.extra.odds_4, card.ability.extra.odds_5, card.ability.extra.odds_6, card.ability.extra.odds_7, card.ability.extra.odds_8, card.ability.extra.odds_9, card.ability.extra.odds_10, card.ability.extra.chips, card.ability.extra.x_mult, card.ability.extra.x_mult_1_1, card.ability.extra.x_mult_1_2, card.ability.extra.power_mult, card.ability.extra.final_chip } }
+    end
+}
+
 
 ----------------------------------------------
 ------------MOD CODE END----------------------
