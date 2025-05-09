@@ -329,5 +329,6 @@ SMODS.Joker{
 	end
 }
 
+assert(SMODS.load_file("ui.lua", 'berry_leg'))()
 ----------------------------------------------
 ------------MOD CODE END----------------------
