@@ -382,12 +382,13 @@ SMODS.Joker{
     calculate = function(self, card, context)
 		if (not card:get_edition() or card:get_edition().card.edition.type ~= 'negative') and not context.blueprint then
 			card:set_edition('e_negative')
-			play_sound('blurb_fumi',1,1)
 			return {
 				message = "Hell yeah!",
 				colour = G.C.PURPLE,
 				card = card,
-				-- sound = 'blurb_fumi'
+				func = function()
+					play_sound('blurb_fumi',1,1)
+				end
 			}
 		end
 		
@@ -431,11 +432,13 @@ SMODS.Joker{
 	load = function(self, card, card_table, other_card)
 		if not card.edition or card.edition.type ~= 'negative' and not context.blueprint then
 			card:set_edition('e_negative')
-			play_sound('blurb_fumi',1,1)
 			SMODS.calculate_effect({
 				message = "Hell yeah!",
 				colour = G.C.PURPLE,
 				card = card,
+				func = function()
+					play_sound('blurb_fumi',1,1)
+				end
 			}, card)
 		end
 	end
