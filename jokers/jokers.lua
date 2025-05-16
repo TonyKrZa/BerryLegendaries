@@ -780,3 +780,89 @@ SMODS.Joker{
 		end
     end
 }
+
+SMODS.Joker{
+    key = 'bentux',
+    loc_txt = {
+        name = 'Bentux',
+        text = {
+            '{C:green,E:1}Improbable items and outcomes{}',
+            'become {C:green,E:1}probable{}, and {C:attention}vice versa{}',
+            'Earn {C:money}#1#${} at end of round',
+			'{C:dark_edition}May the impossible become mundane.{}'
+        }
+    },
+    atlas = 'Jokers',
+    rarity = 4,
+	config = { extra = { dollars = 2, planet_rate = 0, ben_activate = true } },
+    pos = { x = 9, y = 0 },
+    soul_pos = { x = 0, y = 1},
+    cost = 20,
+    blueprint_compat = false,
+	    loc_vars = function(self, info_queue, card)
+        return  { vars = { card.ability.extra.dollars }}
+    end,
+    calc_dollar_bonus = function(self, card)
+        return card.ability.extra.dollars
+    end,
+	calculate = function(self, card, context)
+		if (not card:get_edition() or card:get_edition().card.edition.type ~= 'negative') and not context.blueprint then
+			card:set_edition('e_negative')
+		end
+		
+		if context.cardarea == G.jokers and context.end_of_round and self.config.extra.ben_activate == true then
+			self.config.extra.ben_activate = false
+			G.E_MANAGER:add_event(Event({
+			func = function()
+				sendDebugMessage(G.GAME.edition_rate)
+				G.GAME.edition_rate = G.GAME.edition_rate + 5
+				sendDebugMessage(G.GAME.edition_rate)
+				G.GAME.spectral_rate = G.GAME.planet_rate
+				G.GAME.planet_rate = G.GAME.planet_rate * (card and card.ability.extra.planet_rate or self.config.extra.planet_rate)
+				return true
+			end
+		}))
+	end
+end
+}
+-- code taken from Prism's VIP Pass
+local orig_poll_rarity = SMODS.poll_rarity
+function SMODS.poll_rarity(_pool_key, _rand_key)
+	if not next(find_joker('j_blurb_bentux')) then
+		return orig_poll_rarity(_pool_key, _rand_key)
+	end
+	local rarity_poll = pseudorandom(pseudoseed(_rand_key or ('rarity'..G.GAME.round_resets.ante))) -- Generate the poll value
+	local available_rarities = copy_table(SMODS.ObjectTypes[_pool_key].rarities) -- Table containing a list of rarities and their rates
+    local vanilla_rarities = {["Common"] = 1, ["Uncommon"] = 2, ["Rare"] = 3, ["Legendary"] = 4}
+	table.remove(available_rarities,1)
+    -- Calculate total rates of rarities
+    local total_weight = 0
+    for _, v in ipairs(available_rarities) do
+        v.mod = G.GAME[tostring(v.key):lower().."_mod"] or 1
+        -- Should this fully override the v.weight calcs? 
+        if SMODS.Rarities[v.key] and SMODS.Rarities[v.key].get_weight and type(SMODS.Rarities[v.key].get_weight) == "function" then
+            v.weight = SMODS.Rarities[v.key]:get_weight(v.weight, SMODS.ObjectTypes[_pool_key])
+        end
+        v.weight = v.weight*v.mod
+        total_weight = total_weight + v.weight
+    end
+    -- recalculate rarities to account for v.mod
+    for _, v in ipairs(available_rarities) do
+        v.weight = v.weight / total_weight
+    end
+
+	-- Calculate selected rarity
+	local weight_i = 0
+	for _, v in ipairs(available_rarities) do
+		weight_i = weight_i + v.weight
+		if rarity_poll < weight_i then
+            if vanilla_rarities[v.key] then 
+                return vanilla_rarities[v.key]
+            else
+			    return v.key
+            end
+		end
+	end
+	return nil
+end
+local orig_poll_rarity = SMODS.poll_rarity
