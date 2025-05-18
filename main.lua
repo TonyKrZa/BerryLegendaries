@@ -62,18 +62,77 @@ SMODS.Joker{
             'If played hand contains a {C:attention}Straight{},',
             'scored cards gain a random {C:attention}enhancement{}',
             'and this joker gains {X:mult,C:white}X#2#{} Mult{}',
-            '{C:inactive}(Currently {X:mult,C:white}X#1#{C:inactive} Mult)'
+            '{C:inactive}(Currently {X:mult,C:white}X#1#{C:inactive} Mult)',
+			'{C:inactive}#3#{}'
         }
     },
     atlas = 'Jokers',
     rarity = 4,
-    config = { extra = { x_mult = 1, x_mult_gain = 0.5 } },
+    config = { extra = {
+		x_mult = 1,
+		x_mult_gain = 0.5,
+		joke_list = {
+			'What, am I getting carded now?',
+			'Here to compair?',
+			'Wait lemme get that straight',
+			'Some real branching possibilities…',
+			'Takeout for a spin',
+			'antisynergy with: trouser',
+			'Leverage!',
+			'Only a true crank could pull this off',
+			'Why is it called Straight when they’re all different colours?',
+			'STR? Aight',
+			'black and red like your momma’s bed',
+			'Still here? Chop-chop',
+			'28 Spike!',
+			'Eats ramen',
+			'I didn’t do anything, your screen’s just dirty',
+			'stick is stick',
+			'Could’ve ordered that better',
+			'Stick spin? More like recon-text-you all eyes at I-on',
+			'JIZ LOST',
+			'Gonna go in blind?',
+			'I’m sticking a round',
+			'Dubble Jigsaw Crowbar Special!',
+			'It’s two',
+			"mancomicstick",
+			"comicmanstick",
+			"stickcomicman",
+			"manstickcomic",
+			"comicstickman",
+			"You read? What are you, a sightoid?",
+			"Expotential scaling!",
+			"Adds to 10!",
+			"Wait wrong game",
+			"Add these cards, your deck will 10K me for it",
+			"lemme ex-plain",
+			"Discards? Why not Doscards?",
+			"first I eat dim sum, then I eat ur mum",
+			"wtf get off",
+			"it’s a number line",
+			"I showed you my stick, please respond",
+			"Vampire’s stake",
+			"it’s a backscratcher",
+			"it’s runny",
+			"Sequential sequences!",
+			"Tony applied thermal paste to this joker",
+			"Legendary? more like hand-begin-stone",
+			"Flips and Shuffles all Playing Cards",
+			"linear growth",
+			"mental gymnasticks",
+		}
+	}},
     pos = { x = 1, y = 0 },
     soul_pos = { x = 1, y = 1},
     cost = 20,
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
-        return { vars = {card.ability.extra.x_mult, card.ability.extra.x_mult_gain}}
+		local joke = '"'..pseudorandom_element(self.config.extra.joke_list, pseudoseed('stick'))..'"'
+        return { vars = {
+			card.ability.extra.x_mult,
+			card.ability.extra.x_mult_gain,
+			joke
+		}}
     end,
     calculate = function(self, card, context)
 
@@ -295,7 +354,7 @@ SMODS.Joker{
 			ease_dollars(card.ability.extra.dollars * card.ability.extra.diamond_count)
 			card.ability.extra.diamond_count = 0
 			return  {   
-					 message = 'nyeom',
+					 message = 'Nyeom!',
 					 colour = HEX('ff85ff'),
 					 card = card
 					}
