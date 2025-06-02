@@ -13,6 +13,7 @@ BerryLegendaries.isMember = function(key, value, myTable)
     if type(array) == 'table' then
         for _, v in ipairs(array) do
             if v == value then
+			-- if BerryLegendaries.isMember(key, value, v) then
                 return true
             end
         end
