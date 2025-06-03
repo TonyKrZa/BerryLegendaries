@@ -1,13 +1,5 @@
 SMODS.Joker{
     key = 'tony',
-    loc_txt = {
-        name = 'Tony',
-        text = {
-            'Create a {C:dark_edition}Negative {C:spectral}Spectral{} if',
-            'played hand contains a',
-            '{C:attention}Foil{} and an {C:attention}Ace{}'
-        }
-    },
     atlas = 'Jokers',
     rarity = 4,
     pos = { x = 0, y = 0 },
@@ -17,6 +9,9 @@ SMODS.Joker{
     loc_vars = function(self, info_queue, card)
         info_queue[#info_queue + 1] = G.P_CENTERS.e_negative
         info_queue[#info_queue + 1] = G.P_CENTERS.e_foil
+		return {
+			key = self.key
+		}
     end,
     calculate = function(self, card, context)
         if context.cardarea ~= G.jokers or not context.before then return end
@@ -48,16 +43,6 @@ SMODS.Joker{
 
 SMODS.Joker{
     key = 'stick',
-    loc_txt = {
-        name = 'Stick',
-        text = {
-            'If played hand contains a {C:attention}Straight{},',
-            'scored cards gain a random {C:attention}enhancement{}',
-            'and this joker gains {X:mult,C:white}X#2#{} Mult{}',
-            '{C:inactive}(Currently {X:mult,C:white}X#1#{C:inactive} Mult)',
-			'{C:inactive}#3#{}'
-        }
-    },
     atlas = 'Jokers',
     rarity = 4,
     config = { extra = {
@@ -124,7 +109,7 @@ SMODS.Joker{
 			card.ability.extra.x_mult,
 			card.ability.extra.x_mult_gain,
 			joke
-		}}
+		}, key = self.key}
     end,
     calculate = function(self, card, context)
 
@@ -137,34 +122,11 @@ SMODS.Joker{
 
         if context.before and next(context.poker_hands['Straight']) and not context.blueprint then
 			card.ability.extra.x_mult = card.ability.extra.x_mult + card.ability.extra.x_mult_gain
-			-- First flip
-			BerryLegendaries.addEventForAll(context.scoring_hand,0.15,function (i,v)
-				local percent = 1.15 - (i-0.999)/(#G.hand.highlighted-0.998)*0.3
-				return function()
-					v:flip()
-					play_sound('card1', percent);
-					return true
+			BerryLegendaries.FlipApply(context.scoring_hand, function(i,v)
+				for i, v in ipairs(context.scoring_hand) do
+					v:set_ability(G.P_CENTERS[SMODS.poll_enhancement({guaranteed = true})], true)
 				end
-			end)
-			-- Set Enchantment
-			BerryLegendaries.addEventForAll(context.scoring_hand,0.3,function (i,v)
-				return function()
-					v:juice_up()
-					return true
-				end
-			end)
-            for i, v in ipairs(context.scoring_hand) do
-                v:set_ability(G.P_CENTERS[SMODS.poll_enhancement({guaranteed = true})], true, true)
-            end
-			-- Second flip / Unflip
-			BerryLegendaries.addEventForAll(context.scoring_hand,0.15,function (i,v)
-				local percent = 1.15 - (i-0.999)/(#G.hand.highlighted-0.998)*0.3
-				return function()
-					v:flip()
-					play_sound('card1', percent);
-					return true
-				end
-			end)
+			end, false)
 			return{
 				message = 'Spin!',
 				colour = G.C.MULT,
@@ -184,47 +146,12 @@ SMODS.Joker{
 
 SMODS.Joker{
     key = 'nyala',
-    loc_txt = {
-        name = 'Nyala',
-        text = {
-            'Played hands turn their respective',
-            'held {C:planet}Planets{} into {C:enhanced}Black Holes{}',
-            '{X:mult,C:white}X#2#{} Mult for every {C:enhanced}Black Hole{} used',
-            '{C:inactive}(Currently {X:mult,C:white}X#1#{C:inactive} Mult)'
-        }
-    },
     atlas = 'Jokers',
     rarity = 4,
     config = { extra = {
 		x_mult = 1,
 		x_mult_gain = 0.5,
 		ate_card = 0,
-		mapping = {
-			-- Vanilla
-			["Pluto"] = 'High Card',
-			["Mercury"] = 'Pair',
-			["Uranus"] = 'Two Pair',
-			["Venus"] = 'Three of a Kind',
-			["Saturn"] = 'Straight',
-			["Jupiter"] = 'Flush',
-			["Earth"] = 'Full House',
-			["Mars"] = 'Four Of A Kind',
-			["Neptune"] = 'Straight Flush',
-			["Planet X"] = 'Five Of A Kind',
-			["Ceres"] = 'Flush House',
-			["Eris"] = 'Flush Five',
-			-- Cryptid
-			["c_cry_asteroidbelt"] = "Bulwark", -- Asteroid Belt
-			["c_cry_void"] = "Clusterfuck", -- Void
-			["c_cry_marsmoons"] = "Ultimate Pair", -- Phobos and Deimos
-			["c_cry_universe"] = "The Entire Fucking Deck", -- The Universe In Its Fucking Entirety
-			["cry-Timantti"] = {"High Card", "Pair", "Two Pair"}, -- Ruutu
-			["cry-Klubi"] = {"Three of a Kind", "Straight", "Flush"}, -- Risti
-			["cry-Sydan"] = {"Full House", "Four of a Kind", "Straight Flush"}, -- Hertta
-			["cry-Lapio"] = {"Five of a Kind", "Flush House", "Flush Five"}, -- Pata
-			["cry-Kaikki"] = {"Bulwark", "Clusterfuck", "Ultimate Pair"}, -- Kaikki
-			["cry-sunplanet"] = {}, -- ignore Ascended cards for simplicity
-		}
 		} },
     pos = { x = 2, y = 0 },
     soul_pos = { x = 2, y = 1},
@@ -234,14 +161,17 @@ SMODS.Joker{
         return { vars = {
 			card.ability.extra.x_mult,
 			card.ability.extra.x_mult_gain
-			}}
+			}, key = self.key}
     end,
 	calculate = function(self, card, context)
 		if context.joker_main then
 			local count = 0
 			for _,v in ipairs(G.consumeables.cards) do
-				local eat_card = self.config.extra.ate_card == 0 and v.ability.set == 'Planet' and BerryLegendaries.isMember(v.ability.name, context.scoring_name, self.config.extra.mapping)
-				if eat_card then 
+				-- Check if planet card is eaten already, or consumable is a planet card to be eaten
+				local eat_card = self.config.extra.ate_card == 0 and v.ability.set == 'Planet'
+				-- Check if current scored hand matches target planet
+				eat_card = eat_card and ( next(SMODS.deepfind(v.ability, context.scoring_name, 'value', false)) or ((v.label == 'cry-sunplanet' and G.GAME.current_round.current_hand.cry_asc_num > 0)) )
+				if eat_card then
 					G.E_MANAGER:add_event(Event({
 						func = function()
 							play_sound('tarot1')
@@ -292,46 +222,34 @@ SMODS.Joker{
 
 SMODS.Joker{
     key = 'bread',
-    loc_txt = {
-        name = 'b re ad',
-        text = {
-            'Each {C:attention}drawn card{} has a',
-            '{C:green}#1# in #2#{} chance to permanently',
-            '{C:attention}double{} its chip value'
-        }
-    },
     atlas = 'Jokers',
     rarity = 4,
-    config = { extra = { odds = 3, has_doubled = false } },
+    config = { extra = { odds = 3 } },
     pos = { x = 3, y = 0 },
     soul_pos = { x = 3, y = 1},
     cost = 20,
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
-        return  { vars = { (G.GAME.probabilities.normal or 1), card.ability.extra.odds } }
+        return  {
+			vars = { (G.GAME.probabilities.normal or 1), card.ability.extra.odds },
+			key = self.key
+		}
     end,
     calculate = function(self, card, context)
-        if context.hand_drawn and card.ability.extra.has_doubled then
-			card.ability.extra.has_doubled = false
-			return  {   
-					 message = 'awa',
-					 colour = G.C.CHIPS,
-					 card = card
-					}
+		if context.berry_card_drawn and (pseudorandom(pseudoseed('bread')) < (G.GAME.probabilities.normal / card.ability.extra.odds)) then
+			local target = context.other_card.ability
+			target.perma_bonus = target.perma_bonus + context.other_card:get_chip_bonus()
+			SMODS.calculate_effect{
+				 message = 'awa',
+				 colour = G.C.CHIPS,
+				 card = card
+				}
         end
     end
 }
 
 SMODS.Joker{
     key = 'qui',
-    loc_txt = {
-        name = 'Qui',
-        text = {
-            'Each {C:attention}scoring seal card{} creates',
-            'a random {C:attention}seal{} card, get {C:money}#1#${}',
-            'for every {C:diamonds}Diamond{} drawn'
-        }
-    },
     atlas = 'Jokers',
     rarity = 4,
     config = { extra = { dollars = 3, diamond_count = 0, saw_seal = false } },
@@ -340,13 +258,19 @@ SMODS.Joker{
     cost = 20,
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
-        return  { vars = {card.ability.extra.dollars, card.ability.extra.diamond_count, card.ability.extra.saw_seal }}
+        return  {
+			vars = {card.ability.extra.dollars, card.ability.extra.diamond_count, card.ability.extra.saw_seal },
+			key = self.key
+		}
     end,
     calculate = function(self, card, context)
+		if context.berry_card_drawn and context.other_card.base.suit == 'Diamonds' and not context.other_card.debuff then
+			card.ability.extra.diamond_count = card.ability.extra.diamond_count + 1
+		end
 		if context.hand_drawn and card.ability.extra.diamond_count > 0 then
 			ease_dollars(card.ability.extra.dollars * card.ability.extra.diamond_count)
 			card.ability.extra.diamond_count = 0
-			return  {   
+			return  {
 					 message = 'nyeom',
 					 colour = HEX('ff85ff'),
 					 card = card
@@ -383,15 +307,6 @@ SMODS.Joker{
 
 SMODS.Joker{
     key = 'fumi',
-    loc_txt = {
-        name = 'Fumi',
-        text = {
-            'This joker will {C:attention}always{} be {C:dark_edition}Negative{}',
-			'Gives a {C:dark_edition}Negative{} {C:tarot}Tarot{}',
-			'corresponding to the {C:attention}sum of ranks{} scored',
-            '{C:inactive}(Aces count as 1 or 11, no-rank cards count as 0){}'
-        }
-    },
     atlas = 'Jokers',
     rarity = 4,
     config = { extra = {
@@ -402,21 +317,12 @@ SMODS.Joker{
     cost = 20,
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
-        return  { vars = {}}
+        return  {
+			vars = {}, -- TODO: Put created cards here for JokerDisplay?
+			key = self.key
+		}
     end,
     calculate = function(self, card, context)
-		if (not card:get_edition() or card:get_edition().card.edition.type ~= 'negative') and not context.blueprint then
-			card:set_edition('e_negative')
-			return {
-				message = "Hell yeah!",
-				colour = G.C.PURPLE,
-				card = card,
-				func = function()
-					play_sound('blurb_fumi',1,1)
-				end
-			}
-		end
-		
 		if context.joker_main then
 			local total = 0
 			local rank = 0
@@ -440,11 +346,15 @@ SMODS.Joker{
 			for _,v in ipairs(tarot_array) do
 				if v >= 0 and v <= 21 then
 					local target_card = self.config.extra.tarot_list[v+1]
-
 					G.E_MANAGER:add_event(Event({
 						trigger = 'after',
 						func = function()
-							local _card = SMODS.add_card({set = 'Tarot', edition = 'e_negative', key = target_card, skip_materialize = true})
+							local _card = SMODS.add_card({
+								set = 'Tarot',
+								edition = 'e_negative',
+								key = target_card,
+								skip_materialize = true
+								})
 							_card.states.visible = nil
 							_card:start_materialize()
 							return true
@@ -454,26 +364,26 @@ SMODS.Joker{
 			end
 		end
 	end,
-	load = function(self, card, card_table, other_card)
-		if not card.edition or card.edition.type ~= 'negative' and not context.blueprint then
-			card:set_edition('e_negative')
-			SMODS.calculate_effect({
+	update = function(self, card, dt)
+		if not (card.edition and card.edition.negative) then
+			card:set_edition('e_negative', true, true)
+			card.ability.extra.to_negative = true
+		end
+	end,
+	add_to_deck = function(self, card, from_debuff)
+		SMODS.calculate_effect{
 				message = "Hell yeah!",
 				colour = G.C.PURPLE,
 				card = card,
 				func = function()
 					play_sound('blurb_fumi',1,1)
 				end
-			}, card)
-		end
+			}
 	end
 }
 
 SMODS.Joker{
     key = 'zohn',
-    loc_txt = {
-        name = 'Zohnathan',
-    },
     atlas = 'Jokers',
     rarity = 4,
 	config = { extra = {
@@ -495,6 +405,7 @@ SMODS.Joker{
     soul_pos = { x = 0, y = 3},
     cost = 20,
     blueprint_compat = false,
+	eternal_compat = true,
     loc_vars = function(self, info_queue, card)
         return  { vars = {
 				(G.GAME.probabilities.normal or 1),
@@ -568,7 +479,7 @@ SMODS.Joker{
 						})
 						SMODS.change_base(
 							new_shop_card,
-							pseudorandom_element(SMODS.Suits, pseudorandom(os.time())).key,
+							pseudorandom_element(SMODS.Suits, pseudorandom('zohn')).key,
 							'2'
 						)
 						new_shop_card:set_edition('e_polychrome', true, true)
@@ -599,7 +510,7 @@ SMODS.Joker{
 			local trigger_count = card.ability.extra.trigger_count % 10
 			card.ability.extra.trigger_count = card.ability.extra.trigger_count + 1
 			card.ability.extra.activate_power_mult = false
-			print(tprint({trigger_count,G.GAME.round_resets.ante}))
+			
 			if trigger_count == 0 then -- mult up, chip up, mult down, chip down
 				if chances then
 					if chances_2 then -- mult up
@@ -621,7 +532,8 @@ SMODS.Joker{
 					if chances_2 then -- Negative
 						card:set_edition('e_negative')
 					else -- Eternal
-						SMODS.Stickers['eternal']:apply(card, true)
+						-- SMODS.Stickers['eternal']:apply(card, true)
+						card:set_eternal(true)
 					end
 				end
 			elseif trigger_count == 2 then -- all cards in hand to steel or gold
@@ -639,7 +551,7 @@ SMODS.Joker{
 					BerryLegendaries.FlipApply(G.hand.cards, function(i,v)
 						SMODS.change_base(
 							v,
-							pseudorandom_element(SMODS.Suits, pseudorandom(os.time())).key,
+							pseudorandom_element(SMODS.Suits, pseudorandom('zohn')).key,
 							'Ace'
 						)
 					end)
@@ -647,26 +559,24 @@ SMODS.Joker{
 					BerryLegendaries.FlipApply(G.hand.cards, function(i,v)
 						SMODS.change_base(
 							v,
-							pseudorandom_element(SMODS.Suits, pseudorandom(os.time())).key,
+							pseudorandom_element(SMODS.Suits, pseudorandom('zohn')).key,
 							'2'
 						)
 					end)
 				end
 			elseif trigger_count == 4 then -- Duplicate all negative Jokers or Non-Negative Edition Jokers
 				local target_cards = #G.jokers.cards
-				if chances then
-					for i=1,target_cards do
-						local t = G.jokers.cards[i]
-						if t.edition and t.edition.negative then
-							SMODS.add_card({set = 'Joker', area = G.jokers, key = t.label, edition = 'e_negative'})
-						end
-					end
-				else
-					for i=1,target_cards do
-						local t = G.jokers.cards[i]
-						if t.edition and t.edition.key ~= 'e_negative' then
-							SMODS.add_card({set = 'Joker', area = G.jokers, key = t.label, edition = t.edition.key})
-						end
+				
+				for i=1,target_cards do
+					local t = G.jokers.cards[i]
+					if chances and t.edition and t.edition.negative then
+						local copied_joker = copy_card(t)
+						copied_joker:add_to_deck()
+						G.jokers:emplace(copied_joker)
+					elseif not chances and t.edition and not t.edition.negative then
+						local copied_joker = copy_card(t)
+						copied_joker:add_to_deck()
+						G.jokers:emplace(copied_joker)
 					end
 				end
 			elseif trigger_count == 5 then -- All cards in shop to negative Jokers or Polychrome 2s
@@ -736,6 +646,7 @@ function get_new_boss()
 	return get_new_boss_original()
 end
 
+--[[
 SMODS.Joker{
     key = 'hanya',
     loc_txt = {
@@ -751,8 +662,8 @@ SMODS.Joker{
     cost = 20,
     blueprint_compat = true,
     loc_vars = function(self, info_queue, card)
-        info_queue[#info_queue + 1] = G.P_CENTERS.e_negative
-        info_queue[#info_queue + 1] = G.P_CENTERS.e_foil
+        -- info_queue[#info_queue + 1] = G.P_CENTERS.e_negative
+        -- info_queue[#info_queue + 1] = G.P_CENTERS.e_foil
     end,
     calculate = function(self, card, context)
         if context.joker_main then
@@ -760,7 +671,7 @@ SMODS.Joker{
 			for i, v in pairs(context.full_hand) do
 				-- if v:get_id() == 14 then hasAce = true end
 				if not (v.edition or next(SMODS.get_enhancements(v))) then
-					print(tprint(v))
+					-- print(tprint(v))
 					-- draw blank sprite on front/center?
 				end
 			end
@@ -780,3 +691,4 @@ SMODS.Joker{
 		end
     end
 }
+]]

@@ -3,6 +3,58 @@ return {
         -- this key should match the set ("object type") of your object,
         -- e.g. Voucher, Tarot, or the key of a modded consumable type
         Joker = {
+			j_blurb_tony = {
+				name = 'Tony',
+				text = {
+					'Create a {C:dark_edition}Negative {C:spectral}Spectral{} if',
+					'played hand contains a',
+					'{C:attention}Foil{} and an {C:attention}Ace{}'
+				}
+			},
+			j_blurb_stick = {
+				name = 'Stick',
+				text = {
+					'If played hand contains a {C:attention}Straight{},',
+					'scored cards gain a random {C:attention}enhancement{}',
+					'and this joker gains {X:mult,C:white}X#2#{} Mult{}',
+					'{C:inactive}(Currently {X:mult,C:white}X#1#{C:inactive} Mult)',
+					'{C:inactive}#3#{}'
+				}
+			},
+			j_blurb_nyala = {
+		        name = 'Nyala',
+				text = {
+					'Played hands turn their respective',
+					'held {C:planet}Planets{} into {C:enhanced}Black Holes{}',
+					'{X:mult,C:white}X#2#{} Mult for every {C:enhanced}Black Hole{} used',
+					'{C:inactive}(Currently {X:mult,C:white}X#1#{C:inactive} Mult)'
+				}
+			},
+			j_blurb_bread = {
+				name = 'b re ad',
+				text = {
+					'Each {C:attention}drawn card{} has a',
+					'{C:green}#1# in #2#{} chance to permanently',
+					'{C:attention}double{} its chip value'
+				}
+			},
+			j_blurb_qui = {
+				name = 'Qui',
+				text = {
+					'Each {C:attention}scoring seal card{} creates',
+					'a random {C:attention}seal{} card, get {C:money}#1#${}',
+					'for every {C:diamonds}Diamond{} drawn'
+				}
+			},
+			j_blurb_fumi = {
+				name = 'Fumi',
+				text = {
+					'This joker will {C:attention}always{} be {C:dark_edition}Negative{}',
+					'Gives a {C:dark_edition}Negative{} {C:tarot}Tarot{}',
+					'corresponding to the {C:attention}sum of ranks{} scored',
+					'{C:inactive}(Aces count as 1 or 11, no-rank cards count as 0){}'
+				}
+			},
 			j_blurb_zohn_00 = {
                 name = 'Zohnathan',
                 text = {{
