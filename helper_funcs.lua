@@ -7,20 +7,6 @@ BerryLegendaries.addEventForAll = function(cards,_delay,func)
 	end
 end
 
--- Function to check for membership in an array of strings
-BerryLegendaries.isMember = function(key, value, myTable)
-	local array = myTable[key] -- Get the array corresponding to the key
-    if type(array) == 'table' then
-        for _, v in ipairs(array) do
-            if v == value then
-			-- if BerryLegendaries.isMember(key, value, v) then
-                return true
-            end
-        end
-    end
-    return array == value
-end
-
 BerryLegendaries.FlipApply = function(target_cards, func, immediate)
 immediate = immediate or false
 BerryLegendaries.addEventForAll(target_cards,0.15,function (i,v)
