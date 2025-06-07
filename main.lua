@@ -192,7 +192,7 @@ SMODS.Joker{
 
 SMODS.Joker{
     key = 'nyala',
-    loc_txt = {
+	loc_txt = {
         name = 'Nyala',
         text = {
             'Played hands turn their respective',
@@ -207,32 +207,6 @@ SMODS.Joker{
 		x_mult = 1,
 		x_mult_gain = 0.5,
 		ate_card = 0,
-		mapping = {
-			-- Vanilla
-			["Pluto"] = 'High Card',
-			["Mercury"] = 'Pair',
-			["Uranus"] = 'Two Pair',
-			["Venus"] = 'Three of a Kind',
-			["Saturn"] = 'Straight',
-			["Jupiter"] = 'Flush',
-			["Earth"] = 'Full House',
-			["Mars"] = 'Four Of A Kind',
-			["Neptune"] = 'Straight Flush',
-			["Planet X"] = 'Five Of A Kind',
-			["Ceres"] = 'Flush House',
-			["Eris"] = 'Flush Five',
-			-- Cryptid
-			["c_cry_asteroidbelt"] = "Bulwark", -- Asteroid Belt
-			["c_cry_void"] = "Clusterfuck", -- Void
-			["c_cry_marsmoons"] = "Ultimate Pair", -- Phobos and Deimos
-			["c_cry_universe"] = "The Entire Fucking Deck", -- The Universe In Its Fucking Entirety
-			["cry-Timantti"] = {"High Card", "Pair", "Two Pair"}, -- Ruutu
-			["cry-Klubi"] = {"Three of a Kind", "Straight", "Flush"}, -- Risti
-			["cry-Sydan"] = {"Full House", "Four of a Kind", "Straight Flush"}, -- Hertta
-			["cry-Lapio"] = {"Five of a Kind", "Flush House", "Flush Five"}, -- Pata
-			["cry-Kaikki"] = {"Bulwark", "Clusterfuck", "Ultimate Pair"}, -- Kaikki
-			["cry-sunplanet"] = {}, -- ignore Ascended cards for simplicity
-		}
 		} },
     pos = { x = 2, y = 0 },
     soul_pos = { x = 2, y = 1},
@@ -242,13 +216,17 @@ SMODS.Joker{
         return { vars = {
 			card.ability.extra.x_mult,
 			card.ability.extra.x_mult_gain
-			}}
+			}, key = self.key}
     end,
 	calculate = function(self, card, context)
 		if context.joker_main then
 			local count = 0
 			for _,v in ipairs(G.consumeables.cards) do
-				if self.config.extra.ate_card == 0 and v.ability.set == 'Planet' and BerryLegendaries.isMember(v.ability.name, context.scoring_name, self.config.extra.mapping) then 
+				-- Check if planet card is eaten already, or consumable is a planet card to be eaten
+				local eat_card = self.config.extra.ate_card == 0 and v.ability.set == 'Planet'
+				-- Check if current scored hand matches target planet
+				eat_card = eat_card and ( next(SMODS.deepfind(v.ability, context.scoring_name, 'value', false)) or ((v.label == 'cry-sunplanet' and G.GAME.current_round.current_hand.cry_asc_num > 0)) )
+				if eat_card then
 					G.E_MANAGER:add_event(Event({
 						func = function()
 							play_sound('tarot1')
@@ -296,6 +274,7 @@ SMODS.Joker{
 		end
 	end
 }
+
 
 SMODS.Joker{
     key = 'bread',
