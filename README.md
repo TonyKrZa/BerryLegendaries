@@ -22,8 +22,6 @@ There are currently a total of 5 Legendaries you can get, with more coming in ev
 - Art created by [TonyKrZa](https://github.com/TonyKrZa) (also me!), Breadcrumb5550, and Quiyuan.
 - Special thanks to [stickmancomic](https://ch.tetr.io/u/stickmancomic) for idea workshopping, and the tens of thousands of modders in the Balatro discord for your hard work in making this possible in the first place!
 
-(These will be added in the Mod Credits in the game later when I learn how to do so!)
-
 
 
 
