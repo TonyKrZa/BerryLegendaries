@@ -1,0 +1,10 @@
+{
+    "name": "Berrys_Legendaries",
+    "version_number": "1.0.1",
+    "website_url": "https://github.com/TonyKrZa/BerryLegendaries/tree/release",
+    "description": "Adds a few Legendaries based on my friends!",
+    "dependencies": [
+        "Steamodded-Steamodded-26.829.0",
+        "Thunderstore-lovely-0.9.0"
+    ]
+}

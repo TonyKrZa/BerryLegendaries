@@ -27,7 +27,7 @@ target = "game.lua"
 pattern = '''
 if G.load_shop_jokers then 
 '''
-position = 'before'
+position = 'after'
 match_indent = true
 payload = '''
 if BerryLegendaries then sendDebugMessage(tprint(G.load_shop_jokers), 'BerryLogger') end
