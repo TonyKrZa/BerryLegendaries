@@ -1,15 +1,23 @@
-----------------------------------------------
-------------MOD CODE -------------------------
+BerryLegendaries = BerryLegendaries or {}
+BerryLegendaries.mod = SMODS.current_mod
 
--- I am so sorry for anyone who has to look through this. Especially me in the future! 
-BerryLegendaries = {}
-assert(SMODS.load_file("atlases.lua", SMODS.current_mod.id))()
-assert(SMODS.load_file("sounds.lua", SMODS.current_mod.id))()
-assert(SMODS.load_file("helper_funcs.lua", SMODS.current_mod.id))()
-assert(SMODS.load_file('jokers/jokers.lua', SMODS.current_mod.id))()
+-- PotatoPatchUtils.load_files(BerryLegendaries.mod.path .. '/src')
+assert(SMODS.load_file("src/atlases.lua"))()
+assert(SMODS.load_file("src/sounds.lua"))()
+assert(SMODS.load_file("src/helper_funcs.lua"))()
+assert(SMODS.load_file("src/ui.lua"))()
+-- PotatoPatchUtils.load_files(BerryLegendaries.mod.path .. '/content')
 
+--#region Jokers
+local jokers = {'tony', 'stick', 'nyala', 'bread', 'qui', 'fumi', 'zohn', 'hanya', 'ado', 'bentux'}
+-- local jokers = {'hanya', 'ado', 'bentux', 'tony', 'stick', 'nyala', 'bread', 'qui', 'fumi', 'zohn',}
+for _,v in ipairs(jokers) do
+    assert(SMODS.load_file('content/' .. v .. '.lua'))()
+end
+--#endregion
+
+SMODS.load_mod_localization(BerryLegendaries.mod.path, BerryLegendaries.mod.id)
+
+assert(SMODS.load_file("src/config_tab.lua"))()
 -- G.SETTINGS[G.SETTINGS.profile].meow = 'meow'
 -- G:save_settings()
-assert(SMODS.load_file("ui.lua", SMODS.current_mod.id)){}
-----------------------------------------------
-------------MOD CODE END----------------------
