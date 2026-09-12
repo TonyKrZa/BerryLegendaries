@@ -8,7 +8,7 @@ BerryLegendaries.init_cardarea_config = function()
   -- card.bypass_discovery_center = true
 	-- card.bypass_lock = true
   G.berrylegendaries_config_card_area:emplace(card)
-  if SMODS.find_mod('JokerDisplay') and center.discovered then
+  if SMODS.find_mod('JokerDisplay') and center.discovered and center.joker_display_def then
     G.berrylegendaries_config_card_area.cards[1]:update_joker_display()
     G.berrylegendaries_config_card_area.cards[1].joker_display_values.disabled = false
   end
@@ -149,7 +149,7 @@ G.FUNCS.blurb_set_config_joker = function(args)
     center
   )
   G.berrylegendaries_config_card_area:emplace(card)
-  if SMODS.find_mod('JokerDisplay') and center.discovered then
+  if SMODS.find_mod('JokerDisplay') and center.discovered and center.joker_display_def then
     G.berrylegendaries_config_card_area.cards[1]:update_joker_display()
     G.berrylegendaries_config_card_area.cards[1].joker_display_values.disabled = false
   end
@@ -164,4 +164,5 @@ G.FUNCS.blurb_set_config_joker = function(args)
     config = {parent = menu_wrap, minh = 0.2, align = "cm"}
   })
   menu_wrap.UIBox:recalculate()
+  G.OVERLAY_MENU:recalculate()
 end
